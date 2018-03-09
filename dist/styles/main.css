@@ -4188,14 +4188,6 @@ div.hopscotch-bubble .hopscotch-bubble-arrow-container.left,div.hopscotch-bubble
 .icon-xamarin:before{content:"\e90c"}
 .icon-kubevirt:before{content:"\e90d"}
 .icon-mssql:before{content:"\e90e"}
-.icon-debian:before{content:"\e90f"}
-.icon-fedora:before{content:"\e910"}
-.icon-freebsd:before{content:"\e911"}
-.icon-other-linux:before{content:"\e912"}
-.icon-other-unknown:before{content:"\e913"}
-.icon-suse:before{content:"\e914"}
-.icon-ubuntu:before{content:"\e915"}
-.icon-windows:before{content:"\e916"}
 @keyframes toastSlideIn{0%{opacity:0;transform:translateX(150px)}
 100%{opacity:1;transform:translateX(0)}
 }
@@ -5497,6 +5489,7 @@ h2+.list-view-pf{margin-top:20px}
 .overview .row-expanded-top .overview-pod-template{padding-right:20px}
 }
 .overview .row-expanded-top .overview-pod-template .pod-template-block.ng-leave-prepare{display:none}
+.overview .mobile-row .copy-to-clipboard pre{max-height:250px}
 @keyframes flexGrow{to{flex-basis:auto;flex-grow:1;flex-shrink:1}
 }
 @keyframes flexShrink{to{flex-basis:1;flex-grow:.000001;flex-shrink:1}
