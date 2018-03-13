@@ -154,33 +154,35 @@
 
       //binding might not be ready currently, so
       //watch binding to wait for it to be ready
-      var bindingReadyWatch = DataService.watch(APIService.getPreferredVersion("servicebindings"), context, function(bindings){
-        _.each(bindings._data, function(iterateBinding){
-          if(iterateBinding.metadata.name === binding.metadata.name && isBindingReady(iterateBinding)){
-            DataService.unwatch(bindingReadyWatch);
-            _.set(iterateBinding, "metadata.annotations.consumer", ctrl.consumerService.metadata.labels.serviceName);
-            _.set(iterateBinding, "metadata.annotations.provider", ctrl.integration);
-            DataService.update(APIService.getPreferredVersion("servicebindings"), iterateBinding.metadata.name, iterateBinding, context)
-          }
-        });
+      var bindingReadyWatch = DataService.watchObject(APIService.getPreferredVersion("servicebindings"), _.get(binding, 'metadata.name'), context, function(watchBinding){
+        if(isBindingReady(watchBinding)){
+          DataService.unwatch(bindingReadyWatch);
+          NotificationsService.addNotification({
+            type: "success",
+            message: "Binding has been set in " + _.get(ctrl, 'consumerService.metadata.labels.serviceName') + " Redeployed " + _.get(ctrl, 'consumerService.metadata.labels.serviceName')
+          });
+          _.set(watchBinding, "metadata.annotations.consumer", ctrl.consumerService.metadata.labels.serviceName);
+          _.set(watchBinding, "metadata.annotations.provider", ctrl.integration);
+          DataService.update(APIService.getPreferredVersion("servicebindings"), watchBinding.metadata.name, watchBinding, context);
+        }
       });
-
 
       DataService.create(version, null, podPreset, context)
       .then(function() {
-        return DataService.get(APIService.getPreferredVersion('deployments'), _.get(ctrl.consumerService, 'metadata.labels.serviceName'), context, {
-          errorNotification: false
-        });
+        return DataService.get(
+          APIService.getPreferredVersion('deployments'), 
+          _.get(ctrl.consumerService, 'metadata.labels.serviceName'), 
+          context, {errorNotification: false}
+        );
       })
       .then(function(deployment) {
         deployment.spec.template.metadata.labels[_.get(ctrl.serviceInstance, 'metadata.labels.serviceName')] = "enabled";
-        return DataService.update(APIService.getPreferredVersion('deployments'), _.get(ctrl, 'consumerService.metadata.labels.serviceName'), deployment, context);
-      })
-      .then(function() {
-        NotificationsService.addNotification({
-          type: "success",
-          message: "Binding has been set in " + _.get(ctrl, 'consumerService.metadata.labels.serviceName') + " Redeployed " + _.get(ctrl, 'consumerService.metadata.labels.serviceName')
-        });
+        return DataService.update(
+          APIService.getPreferredVersion('deployments'), 
+          _.get(ctrl, 'consumerService.metadata.labels.serviceName'), 
+          deployment, 
+          context
+        );
       })
       .catch(function(err) {
         NotificationsService.addNotification({
@@ -192,25 +194,29 @@
     };
 
     ctrl.getState = function(){
+      const STATE_PENDING = 2;
+      const STATE_ACTIVE = 1;
+      const STATE_NO_BINDING = 0;
+      const STATE_NO_SERVICE = -1;
+
       if(ctrl.podPreset && !ctrl.binding) {
-        return 2;
+        return STATE_PENDING;
       }
       if(ctrl.podPreset && ctrl.binding) {
-        return 1;
+        //pod preset and binding exist, state 1
+        return STATE_ACTIVE;
       }
       if(ctrl.binding) {
-        var state=1;
-        _.each(ctrl.binding.status.conditions, function(condition){
-          if(condition.type === "Ready" && condition.status !== "True"){
-            state=2;
-          }
-        });
-        return state;
+        var isBindingReady = $filter("isBindingReady");
+        if(isBindingReady(ctrl.binding)){
+          return STATE_ACTIVE;
+        }
+        return STATE_PENDING;
       }
       if (ctrl.serviceInstance){
-        return 0;
+        return STATE_NO_BINDING;
       }
-      return -1;
+      return STATE_NO_SERVICE;
     };
 
     //called in callback from succesful delete-link for binding
@@ -219,15 +225,20 @@
       var deleteOptions = {propagationPolicy: null};
       DataService.delete(podPresetVersion, ctrl.podPreset.metadata.name, context, deleteOptions)
       .then(function(){
-        return DataService.get(APIService.getPreferredVersion('deployments'), _.get(ctrl, 'consumerService.metadata.labels.serviceName'), context)
+        return DataService.get(
+          APIService.getPreferredVersion('deployments'), 
+          _.get(ctrl, 'consumerService.metadata.labels.serviceName'), 
+          context
+        );
       })
       .then(function(deployment) {
-        //if there is a label in the deployment named after the integrated service, 
-        //delete the label and update the deployment to trigger a redeploy
-        if(ctrl.integrationData.name in deployment.spec.template.metadata.labels) {
-          delete(deployment.spec.template.metadata.labels[ctrl.integrationData.name]);
-        }
-        return DataService.update(APIService.getPreferredVersion('deployments'), _.get(ctrl, 'consumerService.metadata.labels.serviceName'), deployment, context);
+        delete deployment.spec.template.metadata.labels[ctrl.integrationData.name];
+        return DataService.update(
+          APIService.getPreferredVersion('deployments'), 
+          _.get(ctrl, 'consumerService.metadata.labels.serviceName'), 
+          deployment, 
+          context
+        );
       })
       .catch(error => {
         NotificationsService.addNotification({

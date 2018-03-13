@@ -32,7 +32,7 @@
           </div>
         </div>
       </div>
-      <div class="list-pf-details" ng-if="!row.expanded && !row.integrations | size">
+      <div class="list-pf-details" ng-if="!row.expanded">
         <span ng-if="!row.bindings.length
                     && row.isBindable
                     && (row.serviceBindingsVersion | canI : 'create')"

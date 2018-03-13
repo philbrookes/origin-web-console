@@ -39,7 +39,7 @@
 
     row.serviceBindingsVersion = APIService.getPreferredVersion('servicebindings');
     row.serviceInstancesVersion = APIService.getPreferredVersion('serviceinstances');
-    row.isMobileService = true;//_.get(row.apiObject, 'metadata.labels', {}).mobile === 'enabled';
+    row.isMobileService = _.get(row.apiObject, 'metadata.labels', {}).mobile === 'enabled';
 
     var getServiceClass = function() {
       var serviceClassName = ServiceInstancesService.getServiceClassNameForInstance(row.apiObject);
@@ -77,13 +77,10 @@
       if (changes.bindings) {
         row.deleteableBindings = _.reject(row.bindings, 'metadata.deletionTimestamp');
       }
-      if(row.isMobileService && _.get(changes, 'apiObject.currentValue.spec.clusterServiceClassRef', false)){
+      if(row.isMobileService){
         var integrations = _.get(getServiceClass(), "spec.externalMetadata.integrations", false);
         if (integrations){
-          //TODO: Ensure ui works with multiple integrations
-          // States -> integrated, not integrated, not provisioned
           row.integrations = integrations.split(",");
-          // row.integrations.push("fh-sync-server");
         }
       }
     };
