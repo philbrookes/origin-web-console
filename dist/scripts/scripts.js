@@ -14103,18 +14103,19 @@ template: '<a ng-href="{{link}}" ng-transclude ng-if="link"></a><span ng-transcl
 }), function() {
 angular.module("openshiftConsole").component("mobileClientRow", {
 controller: [ "$filter", "$routeParams", "APIService", "AuthorizationService", "DataService", "ListRowUtils", "Navigate", "ServiceInstancesService", function(e, t, n, r, a, o, i, s) {
-var c = this, l = n.getPreferredVersion("serviceinstances"), u = e("isServiceInstanceReady"), d = e("isMobileService");
+var c = this, l = n.getPreferredVersion("serviceinstances"), u = n.getPreferredVersion("clusterserviceclasses"), d = e("isServiceInstanceReady"), m = e("isMobileService");
 c.installType = "", _.extend(c, o.ui), c.$onInit = function() {
 c.context = {
 namespace: _.get(c, "apiObject.metadata.namespace")
-}, a.watch(l, c.context, function(e) {
-c.services = _.filter(e.by("metadata.name"), function(e) {
-return s.fetchServiceClassForInstance(e).then(function(t) {
-return d(t) && u(e);
-});
+}, a.list(u, c.context, function(e) {
+e = e.by("metadata.name"), a.watch(l, c.context, function(t) {
+c.services = _.filter(t.by("metadata.name"), function(t) {
+var n = _.get(e, s.getServiceClassNameForInstance(t));
+return m(n) && d(t);
 });
 }, {
 errorNotification: !1
+});
 });
 }, c.$onChanges = function(e) {
 if (e.apiObject) switch (c.bundleDisplay = c.apiObject.spec.appIdentifier, c.clientType = c.apiObject.spec.clientType.toUpperCase(), c.apiObject.spec.clientType) {

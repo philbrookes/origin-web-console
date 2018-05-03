@@ -24,6 +24,7 @@
   function MobileAppRow($filter, $routeParams, APIService, AuthorizationService, DataService, ListRowUtils, Navigate, ServiceInstancesService) {
     var row = this;
     var serviceInstancesVersion = APIService.getPreferredVersion('serviceinstances');
+    var serviceClassesVersion = APIService.getPreferredVersion('clusterserviceclasses');
     var isServiceInstanceReady = $filter('isServiceInstanceReady');
     var isMobileService = $filter('isMobileService');
     row.installType = '';
@@ -32,14 +33,15 @@
 
     row.$onInit = function() {
       row.context = {namespace: _.get(row, 'apiObject.metadata.namespace')};
-      DataService.watch(serviceInstancesVersion, row.context, function (serviceinstances){
-        row.services = _.filter(serviceinstances.by('metadata.name'), function(serviceInstance){
-          return ServiceInstancesService.fetchServiceClassForInstance(serviceInstance)
-            .then(function (serviceClass){
-              return isMobileService(serviceClass) && isServiceInstanceReady(serviceInstance);
-            });
-        });
-      }, { errorNotification: false });
+      DataService.list(serviceClassesVersion, row.context, function(serviceClasses) {
+        serviceClasses = serviceClasses.by('metadata.name');
+        DataService.watch(serviceInstancesVersion, row.context, function(serviceinstances) {
+          row.services = _.filter(serviceinstances.by('metadata.name'), function(serviceInstance){
+            var serviceClass = _.get(serviceClasses, ServiceInstancesService.getServiceClassNameForInstance(serviceInstance));
+            return isMobileService(serviceClass) && isServiceInstanceReady(serviceInstance);
+          });
+        }, { errorNotification: false });
+      });
     };
 
     row.$onChanges = function(changes) {

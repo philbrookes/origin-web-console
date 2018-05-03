@@ -75680,35 +75680,33 @@ type: "Opaque",
 stringData: {}
 };
 return i.stringData.parameters = JSON.stringify(t), i;
-}, d = function(e, t, n, i) {
-var r = e.metadata.name;
-i = _.assign({
-generateName: r + "-"
-}, i);
-var o = c(e.metadata.name + "-credentials-"), a = {
+}, d = function(e, t, n) {
+var i = e.metadata.name, r = c(e.metadata.name + "-credentials-"), o = {
 kind: "ServiceBinding",
 apiVersion: "servicecatalog.k8s.io/v1beta1",
-metadata: i,
+metadata: {
+generateName: i + "-"
+},
 spec: {
 instanceRef: {
-name: r
+name: i
 },
-secretName: o
+secretName: r
 }
 };
-n && (a.spec.parametersFrom = [ {
+n && (o.spec.parametersFrom = [ {
 secretKeyRef: {
 name: n,
 key: "parameters"
 }
 } ]);
-var s = _.get(t, "spec.selector");
-return s && (s.matchLabels || s.matchExpressions || (s = {
-matchLabels: s
-}), a.spec.alphaPodPresetTemplate = {
-name: o,
-selector: s
-}), a;
+var a = _.get(t, "spec.selector");
+return a && (a.matchLabels || a.matchExpressions || (a = {
+matchLabels: a
+}), o.spec.alphaPodPresetTemplate = {
+name: r,
+selector: a
+}), o;
 }, h = function(t, n, i) {
 if (!t || !n || !i) return !1;
 if (_.get(t, "metadata.deletionTimestamp")) return !1;
@@ -75731,18 +75729,18 @@ return n ? t[n] : null;
 },
 makeParametersSecret: u,
 generateSecretName: c,
-bindService: function(e, t, n, i, o) {
-var l;
-_.isEmpty(i) || (l = c(e.metadata.name + "-bind-parameters-"));
-var h = d(e, t, l, o), f = {
+bindService: function(e, t, n, i) {
+var o;
+_.isEmpty(i) || (o = c(e.metadata.name + "-bind-parameters-"));
+var l = d(e, t, o), h = {
 namespace: e.metadata.namespace
-}, p = r.create(a, null, h, f);
-return l ? p.then(function(e) {
-var t = u(l, i, e);
-return r.create(s, null, t, f).then(function() {
+}, f = r.create(a, null, l, h);
+return o ? f.then(function(e) {
+var t = u(o, i, e);
+return r.create(s, null, t, h).then(function() {
 return e;
 });
-}) : p;
+}) : f;
 },
 isServiceBindable: h,
 getPodPresetSelectorsForBindings: f,
@@ -79378,7 +79376,7 @@ e.exports = '<div class="order-service-config">\n  <div class="config-top">\n   
 }, function(e, t) {
 e.exports = '<div class="order-service-config">\n  <bind-service-form service-class="$ctrl.serviceClass.resource"\n                     show-pod-presets="$ctrl.showPodPresets"\n                     applications="$ctrl.applications"\n                     form-name="$ctrl.forms.bindForm"\n                     allow-no-binding="true"\n                     project-name="$ctrl.projectDisplayName"\n                     bind-type="$ctrl.bindType"\n                     app-to-bind="$ctrl.appToBind">\n  </bind-service-form>\n</div>\n';
 }, function(e, t) {
-e.exports = '<div class="order-service-config">\n  <div class="config-top">\n    <form name="$ctrl.forms.orderConfigureForm" class="config-form">\n      <select-project ng-if="!$ctrl.addToProject"\n                      selected-project="$ctrl.selectedProject"\n                      name-taken="$ctrl.projectNameTaken"\n                      show-divider="$ctrl.parameterSchema.properties | size"></select-project>\n      <catalog-parameters\n        ng-if="$ctrl.parameterSchema.properties && !$ctrl.noProjectsCantCreate"\n        model="$ctrl.parameterData"\n        parameter-schema="$ctrl.parameterSchema"\n        parameter-form-definition="$ctrl.parameterFormDefinition">\n      </catalog-parameters>\n    </form>\n    <div ng-if="$ctrl.error" class="has-error">\n      <span class="help-block">{{$ctrl.error}}</span>\n    </div>\n  </div>\n</div>\n';
+e.exports = '<div class="order-service-config">\n  <div class="config-top">\n    <form name="$ctrl.forms.orderConfigureForm" class="config-form">\n      <select-project ng-if="!$ctrl.addToProject" selected-project="$ctrl.selectedProject" name-taken="$ctrl.projectNameTaken" show-divider="$ctrl.parameterSchema.properties.length > 0"></select-project>\n      <catalog-parameters\n        ng-if="$ctrl.parameterSchema.properties && !$ctrl.noProjectsCantCreate"\n        model="$ctrl.parameterData"\n        parameter-schema="$ctrl.parameterSchema"\n        parameter-form-definition="$ctrl.parameterFormDefinition">\n      </catalog-parameters>\n    </form>\n    <div ng-if="$ctrl.error" class="has-error">\n      <span class="help-block">{{$ctrl.error}}</span>\n    </div>\n  </div>\n</div>\n';
 }, function(e, t) {
 e.exports = '<div class="order-service-details">\n  <div class="order-service-details-top" ng-class="{\'order-service-details-top-icon-top\': $ctrl.serviceClass.vendor || $ctrl.docUrl || $ctrl.supportUrl}">\n    <div class="service-icon">\n      <span ng-if="!$ctrl.imageUrl" class="icon {{$ctrl.iconClass}}" aria-hidden="true"></span>\n      <span ng-if="$ctrl.imageUrl" class="image"><img ng-src="{{$ctrl.imageUrl}}" alt=""></span>\n    </div>\n    <div class="service-title-area">\n      <div class="service-title">\n        {{$ctrl.serviceName}}\n      </div>\n      <div ng-if="$ctrl.serviceClass.vendor" class="service-vendor">\n        {{$ctrl.serviceClass.vendor}}\n      </div>\n      <div ng-if="$ctrl.serviceClass.tags" class="order-service-tags">\n        <span ng-repeat="tag in $ctrl.serviceClass.tags" class="tag">\n          {{tag}}\n        </span>\n      </div>\n      <ul ng-if="$ctrl.docUrl || $ctrl.supportUrl" class="list-inline order-service-documentation-url">\n        <li ng-if="$ctrl.docUrl" >\n          <a ng-href="{{$ctrl.docUrl}}" target="_blank" class="learn-more-link">View Documentation <i class="fa fa-external-link" aria-hidden="true"></i></a>\n        </li>\n        <li ng-if="$ctrl.supportUrl" >\n          <a ng-href="{{$ctrl.supportUrl}}" target="_blank" class="learn-more-link">Get Support <i class="fa fa-external-link" aria-hidden="true"></i></a>\n        </li>\n      </ul>\n    </div>\n  </div>\n  <div class="order-service-description-block">\n    <p ng-if="!$ctrl.multipleServicePlans && ($ctrl.selectedPlan.spec.externalMetadata.displayName || $ctrl.selectedPlan.spec.description)">\n      <span ng-if="$ctrl.selectedPlan.spec.externalMetadata.displayName">\n        Plan {{$ctrl.selectedPlan.spec.externalMetadata.displayName}}\n        <span ng-if="$ctrl.selectedPlan.spec.description">&ndash;</span>\n      </span>\n      <span ng-if="$ctrl.selectedPlan.spec.description">{{$ctrl.selectedPlan.spec.description}}</span>\n    </p>\n    <p ng-if="!$ctrl.description && !$ctrl.longDescription" class="description">No description provided.</p>\n    <p ng-if="$ctrl.description" ng-bind-html="($ctrl.description | linky : \'_blank\')" class="description"></p>\n    <p ng-if="$ctrl.longDescription" ng-bind-html="$ctrl.longDescription | linky : \'_blank\'" class="description"></p>\n    <div ng-if="$ctrl.imageDependencies.length">\n      <div class="order-service-subheading">Image Dependencies</div>\n      <div ng-repeat="imageName in $ctrl.imageDependencies" class="order-service-dependent-image">\n        <span class="pficon pficon-image" aria-hidden="true"></span>\n        <span class="sr-only">Image</span>\n        {{imageName}}\n      </div>\n    </div>\n  </div>\n</div>\n';
 }, function(e, t) {
@@ -81319,27 +81317,27 @@ o.$inject = [ "$filter", "$scope", "AuthService", "AuthorizationService", "Keywo
 "use strict";
 t.__esModule = !0;
 var i = n(0), r = n(2), o = function() {
-function e(e, t, n, r, o, a, s, l, c, u, d) {
-var h = this;
+function e(e, t, n, r, o, a, s, l, c, u) {
+var d = this;
 this.ctrl = this, this.previousSubCategoryHeight = 0, this.resizeRetries = 0, this.serviceViewItemClicked = function(e, t) {
-h.$scope.$emit("open-overlay-panel", e);
+d.$scope.$emit("open-overlay-panel", e);
 }, this.filterChange = function(e) {
-h.filterByCategory(h.ctrl.currentFilter, h.ctrl.currentSubFilter, !1), i.isEmpty(e) || i.each(e, function(e) {
+d.filterByCategory(d.ctrl.currentFilter, d.ctrl.currentSubFilter, !1), i.isEmpty(e) || i.each(e, function(e) {
 switch (e.id) {
 case "keyword":
-h.ctrl.filteredItems = h.filterForKeywords(e.values[0], h.ctrl.filteredItems);
+d.ctrl.filteredItems = d.filterForKeywords(e.values[0], d.ctrl.filteredItems);
 break;
 
 case "vendors":
-h.ctrl.filteredItems = h.filterForVendors(e.values, h.ctrl.filteredItems);
+d.ctrl.filteredItems = d.filterForVendors(e.values, d.ctrl.filteredItems);
 }
-}), h.ctrl.filterConfig.resultsCount = h.ctrl.filteredItems.length, h.ctrl.keywordFilterValue = null;
+}), d.ctrl.filterConfig.resultsCount = d.ctrl.filteredItems.length, d.ctrl.keywordFilterValue = null;
 }, this.clearAppliedFilters = function() {
-h.$scope.$broadcast("clear-filters");
-}, this.constants = e, this.catalog = t, this.keywordService = n, this.logger = r, this.htmlService = o, this.element = a[0], this.$filter = s, this.$rootScope = c, this.$location = l, this.$scope = u, this.$timeout = d, this.ctrl.loaded = !1, this.ctrl.isEmpty = !1, this.ctrl.mobileView = "categories", this.ctrl.filterConfig = {
+d.$scope.$broadcast("clear-filters");
+}, this.constants = e, this.catalog = t, this.keywordService = n, this.logger = r, this.htmlService = o, this.element = a[0], this.$filter = s, this.$rootScope = l, this.$scope = c, this.$timeout = u, this.ctrl.loaded = !1, this.ctrl.isEmpty = !1, this.ctrl.mobileView = "categories", this.ctrl.filterConfig = {
 resultsLabel: "Items",
 appliedFilters: []
-}, this.ctrl.keywordFilterValue = null, this.ctrl.currentFilter = this.$location.search().category || "all", this.ctrl.currentSubFilter = this.$location.search().category && this.$location.search().subcategory;
+}, this.ctrl.keywordFilterValue = null;
 }
 return e.prototype.$onInit = function() {
 var e = this;
@@ -81347,7 +81345,7 @@ this.debounceResize = i.debounce(function() {
 return e.resizeExpansion(!1);
 }, 50, {
 maxWait: 250
-}), r(window).on("resize.services", this.debounceResize), this.ctrl.sectionTitle = this.ctrl.sectionTitle || "Browse Catalog", this.removeFilterListener = this.$rootScope.$on("filter-catalog-items", function(t, n) {
+}), r(window).on("resize.services", this.debounceResize), this.ctrl.currentFilter = this.ctrl.currentSubFilter = "all", this.ctrl.sectionTitle = this.ctrl.sectionTitle || "Browse Catalog", this.removeFilterListener = this.$rootScope.$on("filter-catalog-items", function(t, n) {
 e.setKeywordFilter(n.searchText);
 }), this.ctrl.emptyFilterConfig = {
 title: "No results match.",
@@ -81365,7 +81363,7 @@ url: "https://docs.openshift.org/latest/install_config/imagestreams_templates.ht
 }
 }, this.ctrl.keywordFilter && this.setKeywordFilter(this.ctrl.keywordFilter);
 }, e.prototype.$onChanges = function(e) {
-e.catalogItems && e.catalogItems.currentValue && (this.ctrl.isEmpty = i.isEmpty(this.ctrl.catalogItems), this.ctrl.isEmpty || (this.ctrl.categories = this.catalog.categorizeItems(this.ctrl.catalogItems), this.ctrl.vendors = this.catalog.getVendors(this.ctrl.catalogItems), this.filterByCategory(this.ctrl.currentFilter, this.ctrl.currentSubFilter, !0)), this.ctrl.loaded = !0), e.keywordFilter && !e.keywordFilter.isFirstChange() && this.setKeywordFilter(this.ctrl.keywordFilter);
+e.catalogItems && e.catalogItems.currentValue && (this.ctrl.isEmpty = i.isEmpty(this.ctrl.catalogItems), this.ctrl.isEmpty || (this.ctrl.categories = this.catalog.categorizeItems(this.ctrl.catalogItems), this.ctrl.vendors = this.catalog.getVendors(this.ctrl.catalogItems), this.filterByCategory("all", "all", !0)), this.ctrl.loaded = !0), e.keywordFilter && !e.keywordFilter.isFirstChange() && this.setKeywordFilter(this.ctrl.keywordFilter);
 }, e.prototype.$postLink = function() {
 this.scrollParent = this.getScrollParent(this.element), this.scrollParent && this.htmlService.isWindowAboveBreakpoint(this.htmlService.WINDOW_SIZE_SM) && (this.ctrl.viewStyle = {
 "min-height": "calc(100vh - " + this.scrollParent.getBoundingClientRect().top + "px)"
@@ -81385,27 +81383,18 @@ this.ctrl.mobileView = "items", this.ctrl.currentSubFilter === e && "xxs" !== th
 var t = [];
 return this.ctrl.categories.map(function(n) {
 e === n.id && (t = t.concat(n.subCategories));
-}), (t = i.filter(t, {
+}), "all" === (t = i.filter(t, {
 hasItems: !0
-}))[0] && "all" === t[0].id && 2 === t.length && (t = i.drop(t, 1)), t;
+}))[0].id && 2 === t.length && (t = i.drop(t, 1)), t;
 }, e.prototype.applyFilters = function(e) {
 this.filterChange(e.appliedFilters);
 }, e.prototype.filterByCategory = function(e, t, n) {
 var r, o;
-if ("all" === e || "other" === e) t = "all"; else if (n && (this.ctrl.subCategories = this.getSubCategories(e)), t) {
-var a = i.some(this.ctrl.subCategories, function(e) {
-return e.id === t;
-});
-t = a ? t : null;
-} else t = 1 === this.ctrl.subCategories.length ? this.ctrl.subCategories[0].id : null;
-(r = i.find(this.ctrl.categories, {
+"all" === e || "other" === e ? t = "all" : (n && (this.ctrl.subCategories = this.getSubCategories(e)), t = 1 === this.ctrl.subCategories.length ? this.ctrl.subCategories[0].id : t || null), (r = i.find(this.ctrl.categories, {
 id: e
 })) ? t && ((o = i.find(r.subCategories, {
 id: t
-})) ? (this.ctrl.filteredItems = o.items, this.ctrl.filterConfig.totalCount = this.ctrl.filteredItems.length, this.ctrl.filterConfig.resultsCount = this.ctrl.filterConfig.totalCount) : this.logger.error("Could not find subcategory '" + t + "' for category '" + e + "'")) : this.logger.error("Could not find category '" + e + "'"), this.ctrl.currentFilter = e, this.ctrl.currentSubFilter = t, t = "all" === e ? null : t, this.$location.path(this.$location.path()).search({
-category: this.ctrl.currentFilter,
-subcategory: t
-}), this.updateActiveCardStyles();
+})) ? (this.ctrl.filteredItems = o.items, this.ctrl.filterConfig.totalCount = this.ctrl.filteredItems.length, this.ctrl.filterConfig.resultsCount = this.ctrl.filterConfig.totalCount) : this.logger.error("Could not find subcategory '" + t + "' for category '" + e + "'")) : this.logger.error("Could not find category '" + e + "'"), this.ctrl.currentFilter = e, this.ctrl.currentSubFilter = t, this.updateActiveCardStyles();
 }, e.prototype.setKeywordFilter = function(e) {
 this.ctrl.keywordFilterValue = e, this.ctrl.currentFilter = this.ctrl.currentSubFilter = "all", this.ctrl.mobileView = "subcategories";
 }, e.prototype.filterForKeywords = function(e, t) {
@@ -81444,7 +81433,7 @@ return e.resizeExpansion(!0);
 });
 }, e;
 }();
-o.$inject = [ "Constants", "Catalog", "KeywordService", "Logger", "HTMLService", "$element", "$filter", "$location", "$rootScope", "$scope", "$timeout" ], o.MAX_RESIZE_RETRIES = 20, t.ServicesViewController = o;
+o.$inject = [ "Constants", "Catalog", "KeywordService", "Logger", "HTMLService", "$element", "$filter", "$rootScope", "$scope", "$timeout" ], o.MAX_RESIZE_RETRIES = 20, t.ServicesViewController = o;
 }, function(e, t, n) {
 "use strict";
 t.__esModule = !0;
